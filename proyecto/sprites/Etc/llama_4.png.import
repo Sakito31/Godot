@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://4h4saoo0d24v"
-path="res://.godot/imported/enemy_estatico.png-ef22243b49bcf0f2f9e808bd7d66b7ef.ctex"
+uid="uid://dflmx6i6lvf1q"
+path="res://.godot/imported/llama_4.png-4bf747559f0884b11bd9c6f7e9fcc9fd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/enemy_estatico.png"
-dest_files=["res://.godot/imported/enemy_estatico.png-ef22243b49bcf0f2f9e808bd7d66b7ef.ctex"]
+source_file="res://sprites/Etc/llama_4.png"
+dest_files=["res://.godot/imported/llama_4.png-4bf747559f0884b11bd9c6f7e9fcc9fd.ctex"]
 
 [params]
 

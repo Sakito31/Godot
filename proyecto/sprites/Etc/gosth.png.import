@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dflmx6i6lvf1q"
-path="res://.godot/imported/llama_4.png-52e43462a41422c013b52c17b55cf886.ctex"
+uid="uid://cv256fv0imkai"
+path="res://.godot/imported/gosth.png-c7853e1569e82fd6bbf351c6505e4452.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/llama_4.png"
-dest_files=["res://.godot/imported/llama_4.png-52e43462a41422c013b52c17b55cf886.ctex"]
+source_file="res://sprites/Etc/gosth.png"
+dest_files=["res://.godot/imported/gosth.png-c7853e1569e82fd6bbf351c6505e4452.ctex"]
 
 [params]
 

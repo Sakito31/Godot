@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b66f2dyogaidv"
-path="res://.godot/imported/llama_1.png-ae842e501e6f9c85e778280afe6316e6.ctex"
+uid="uid://dt17u6era10j0"
+path="res://.godot/imported/ArtOfScrolls_BigWander_Spritesheet.png-7a94340b2156d4d058bc1631a9ec6144.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/llama_1.png"
-dest_files=["res://.godot/imported/llama_1.png-ae842e501e6f9c85e778280afe6316e6.ctex"]
+source_file="res://sprites/Etc/ArtOfScrolls_BigWander_Spritesheet.png"
+dest_files=["res://.godot/imported/ArtOfScrolls_BigWander_Spritesheet.png-7a94340b2156d4d058bc1631a9ec6144.ctex"]
 
 [params]
 
