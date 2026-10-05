@@ -1,182 +1,107 @@
+
 extends CharacterBody2D
 
-const GRAVEDAD = 980.0
-
-@onready var raycast_der = $RayCastDerecha
-@onready var raycast_izq = $RayCastIzquierda
-@onready var animacion = $EnemyAnimations
-@onready var area_ataque = $AreaAtaque
-@onready var area_muerte_colision = $AreaAtaque/CollisionShape2D
-
-var atacando = false
-var ya_ataco = false
-
-# Guardamos la posición original del AreaAtaque
-var posicion_inicial_area: Vector2
 
 
-func _ready() -> void:
-	# Guardamos la posición original del AreaAtaque
-	if area_ataque:
-		posicion_inicial_area = area_ataque.position
+# Llamamos a los nodos necesarios para el Script
+@onready var animations: AnimatedSprite2D = $EnemyAnimations
+@onready var ray_derecha: RayCast2D = $RayCastDerecha
+@onready var ray_izquierda: RayCast2D = $RayCastIzquierda
 
-	# El área de daño empieza desactivada
-	if area_muerte_colision:
-		area_muerte_colision.disabled = true
+# Usa la gravedad que tenga configurada el proyecto
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
+# ¿Está atacando? -> En este caso se usa para 
+# que no reinicie la animación de ataque siempre
+var attacking := false
 
-func _physics_process(delta: float) -> void:
-	# =========================
+# Frames del ataque que hacen daño, solo el 4 en este caso
+var attack_frames := [4]
+
+# Aquí conectamos dos señales de AnimatedSprite2D.
+
+func _ready():
+	# Cada vez que cambia el frame, Godot ejecuta,
+	# Esto nos permite detectar exactamente cuándo debe hacer daño ->
+	animations.frame_changed.connect(_on_animation_frame_changed)
+	# Lo utilizamos para saber cuándo termina el ataque. ->
+	animations.animation_finished.connect(_on_animation_finished)
+
+	# -------------------------
+	# FÍSICAS
+	#  - Gravedad
+	#  - Detección del jugador
+	#  - Movimiento
+	# -------------------------
+func _physics_process(delta):
 	# GRAVEDAD
-	# =========================
 	if not is_on_floor():
-		velocity.y += GRAVEDAD * delta
+		velocity.y += gravity * delta
 	else:
 		velocity.y = 0
 
+	# DETECTAR JUGADOR
+	if not attacking:
 
-	# El enemigo no se mueve horizontalmente
-	velocity.x = 0
+		# DERECHA
+		if ray_derecha.is_colliding():
+			var objeto = ray_derecha.get_collider()
 
+			if objeto.is_in_group("Jugador"):
+				animations.flip_h = false
+				start_attack()
 
-	# =========================
-	# DETECTAR AL JUGADOR
-	# =========================
-	var detectando_derecha = (
-		raycast_der.is_colliding()
-		and raycast_der.get_collider().is_in_group("Jugador")
-	)
+		# IZQUIERDA
+		elif ray_izquierda.is_colliding():
+			var objeto = ray_izquierda.get_collider()
 
-	var detectando_izquierda = (
-		raycast_izq.is_colliding()
-		and raycast_izq.get_collider().is_in_group("Jugador")
-	)
+			if objeto.is_in_group("Jugador"):
+				animations.flip_h = true
+				start_attack()
 
-	var detectando_jugador = detectando_derecha or detectando_izquierda
-
-
-	# Si el jugador deja de estar detectado,
-	# permitimos atacar otra vez
-	if not detectando_jugador:
-		ya_ataco = false
-
-
-	# =========================
-	# ATAQUE
-	# =========================
-	if not atacando:
-
-		if detectando_jugador and not ya_ataco:
-
-			var direccion = 1
-
-			if detectando_derecha:
-				direccion = 1
-			elif detectando_izquierda:
-				direccion = -1
-
-			iniciar_ataque(direccion)
-
-		else:
-
-			if animacion.animation != "idle":
-				animacion.play("idle")
-
-
-	# Aplicar movimiento y gravedad
 	move_and_slide()
 
 
-# =====================================================
-# INICIAR ATAQUE
-# =====================================================
-func iniciar_ataque(direccion: int) -> void:
+	# -------------------------
+	# ATAQUE
+	# -------------------------
+func start_attack():
+	if attacking:
+		return
 
-	atacando = true
-	ya_ataco = true
+	attacking = true
+	velocity.x = 0
 
+	animations.play("attack")
 
-	# =========================
-	# GIRAR SPRITE
-	# =========================
+	# -------------------------
+	# Cambio de frame
+	# -------------------------
+func _on_animation_frame_changed():
+	if animations.animation != "attack":
+		return
 
-	if direccion == -1:
-		animacion.flip_h = true
-	else:
-		animacion.flip_h = false
+	# Solo hace daño durante estos frames, en este caso [4]
+	if animations.frame in attack_frames:
 
+		# Comprobar derecha
+		if ray_derecha.is_colliding():
+			var objeto = ray_derecha.get_collider()
 
-	# =========================
-	# COLOCAR AREA DE ATAQUE
-	# =========================
+			if objeto.is_in_group("Jugador"):
+				objeto.morir()
 
-	if area_ataque:
+		# Comprobar izquierda
+		if ray_izquierda.is_colliding():
+			var objeto = ray_izquierda.get_collider()
 
-		# Primero restauramos la posición original
-		area_ataque.position = posicion_inicial_area
+			if objeto.is_in_group("Jugador"):
+				objeto.morir()
 
-		# Colocamos el área delante del enemigo
-		if direccion == 1:
-
-			# ATAQUE HACIA LA DERECHA
-			area_ataque.position.x = abs(posicion_inicial_area.x)
-
-		else:
-
-			# ATAQUE HACIA LA IZQUIERDA
-			area_ataque.position.x = -abs(posicion_inicial_area.x)
-
-
-	# =========================
-	# DESACTIVAR DAÑO AL COMENZAR
-	# =========================
-
-	if area_muerte_colision:
-		area_muerte_colision.disabled = true
-
-
-	# Reproducir animación
-	animacion.play("attack")
-
-
-# =====================================================
-# ACTIVAR EL DAÑO EN LOS FRAMES DEL ATAQUE
-# =====================================================
-func _on_enemy_animations_frame_changed() -> void:
-
-	if animacion.animation == "attack" and area_muerte_colision:
-
-		# FRAMES QUE HACEN DAÑO
-		if animacion.frame == 2 or animacion.frame == 3:
-
-			area_muerte_colision.disabled = false
-
-		else:
-
-			area_muerte_colision.disabled = true
-
-
-# =====================================================
-# CUANDO TERMINA EL ATAQUE
-# =====================================================
-func _on_enemy_animations_animation_finished() -> void:
-
-	if animacion.animation == "attack":
-
-		# Desactivar el área de daño
-		if area_muerte_colision:
-			area_muerte_colision.disabled = true
-
-		# El enemigo ya puede volver a atacar
-		atacando = false
-
-
-# =====================================================
-# CUANDO EL JUGADOR ENTRA EN EL AREA DE ATAQUE
-# =====================================================
-func _on_area_ataque_body_entered(body: Node2D) -> void:
-
-	if body.is_in_group("Jugador"):
-
-		if body.has_method("morir"):
-			body.morir()
+	# -------------------------
+	# ANIMACION IDLE
+	# -------------------------
+func _on_animation_finished():
+	if animations.animation == "attack":
+		attacking = false
+		animations.play("idle")

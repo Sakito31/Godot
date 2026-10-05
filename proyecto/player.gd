@@ -185,7 +185,7 @@ func _on_fire_orbit_body_entered(body: Node2D) -> void:
 # se muere e imprime mensaje personalizado.
 		if body.has_method("morir"):
 			body.morir()
-			print("¡Te han quemado las bolas!")
+			print("¡Te ha tocado el fantasma!")
 			return;
 
 # Si el jugador cae en los pinchos
